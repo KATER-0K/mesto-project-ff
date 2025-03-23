@@ -1,39 +1,107 @@
-import '../blocks/index.css';
+import './../styles/index.css';
+import initialCards from './cards.js';
+import { createCard, likeCard, deleteCard, appendCardToContainer } from './../components/card.js';
+import { openPopup, closePopup, closePopupByEscape } from './../components/modal.js';
 
-// @todo: Темплейт карточки
-const cardTemplate = document.querySelector("#card-template").content;
-const placesList = document.querySelector(".places__list");
+const placesList = document.querySelector('.places__list');
 
-// @todo: DOM узлы
-const renderCard = (cardData, container) => {
-    const cardElement = createCard(cardData, deleteCard);
-    container.append(cardElement);
-};
-
-// @todo: Функция создания карточки
-const createCard = (cardData, deleteCallback) => {
-    const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
-    const cardImage = cardElement.querySelector(".card__image");
-    const cardTitle = cardElement.querySelector(".card__title");
-    const deleteButton = cardElement.querySelector(".card__delete-button");
-    
-    cardImage.src = cardData.link;
-    cardImage.alt = cardData.name;
-    cardTitle.textContent = cardData.name;
-    
-    deleteButton.addEventListener("click", () => {
-        deleteCallback(cardElement);
-    });
-    
-    return cardElement;
-};  
-
-// @todo: Функция удаления карточки
-const deleteCard = (cardElement) => {
-    cardElement.remove();
-};
-
-// @todo: Вывести карточки на страницу
+//вывести карточки на страницу
 initialCards.forEach((cardData) => {
-    renderCard(cardData, placesList);
+    const cardElement = createCard(cardData, deleteCard, likeCard, openImagePopup);
+    placesList.append(cardElement);
 });
+
+//элементы модальных окн
+const editButton = document.querySelector('.profile__edit-button');
+const addCardButton = document.querySelector('.profile__add-button');
+const imagePopup = document.querySelector('.popup_type_image');
+const editProfilePopup = document.querySelector('.popup_type_edit');
+const addCardPopup = document.querySelector('.popup_type_new-card');
+const popups = document.querySelectorAll('.popup');
+
+//функция открытия попапа с картинкой
+function openImagePopup(cardData) {
+    const popupImage = document.querySelector('.popup__image');
+    const popupCaption = document.querySelector('.popup__caption');
+
+    popupImage.src = cardData.link;
+    popupImage.alt = cardData.name;
+    popupCaption.textContent = cardData.name;
+    openPopup(imagePopup);
+};
+
+//обработчик закрытия попапа по клику на оверлей и кнопку закрытия
+popups.forEach((popup) => {
+  popup.addEventListener('mousedown', (evt) => {
+    if (evt.target.classList.contains('popup_is-opened')) {
+      closePopup(popup);
+    };
+    if (evt.target.classList.contains('popup__close')) {
+      closePopup(popup);
+    };
+  });
+});
+
+//обработчики открытия попапов
+editButton.addEventListener('click', () => {
+  const nameInput = editProfilePopup.querySelector('.popup__input_type_name');
+  const jobInput = editProfilePopup.querySelector('.popup__input_type_description');
+  const profileName = document.querySelector('.profile__title');
+  const profileDescription = document.querySelector('.profile__description');
+
+  nameInput.value = profileName.textContent;
+  jobInput.value = profileDescription.textContent;
+
+  openPopup(editProfilePopup);
+});
+
+addCardButton.addEventListener('click', () => {
+  openPopup(addCardPopup);
+});
+
+//обработчик отправки формы
+const formElement = document.querySelector('form[name="edit-profile"]');
+function handleFormSubmit(evt) {
+    evt.preventDefault();
+    const nameInput = formElement.querySelector('.popup__input_type_name');
+    const jobInput = formElement.querySelector('.popup__input_type_description');
+
+    const newName = nameInput.value;
+    const newDescription = jobInput.value;
+
+    const profileName = document.querySelector('.profile__title');
+    const profileDescription = document.querySelector('.profile__description');
+
+    profileName.textContent = newName;
+    profileDescription.textContent = newDescription;
+
+    closePopup(editProfilePopup);
+};
+
+formElement.addEventListener('submit', handleFormSubmit);
+
+//добавление карточки
+const newCardForm = document.querySelector('form[name="new-place"]');
+function handleNewCardSubmit(evt) {
+    evt.preventDefault();
+    const placeNameInput = newCardForm.querySelector('.popup__input_type_card-name');
+    const linkInput = newCardForm.querySelector('.popup__input_type_url');
+
+    const name = placeNameInput.value;
+    const link = linkInput.value;
+
+    const newCardData = {
+        name: name,
+        link: link
+    };
+
+    const newCard = createCard(newCardData, deleteCard, likeCard, openImagePopup);
+
+    placesList.prepend(newCard);
+
+    closePopup(addCardPopup);
+
+    newCardForm.reset();
+};
+
+newCardForm.addEventListener('submit', handleNewCardSubmit);
