@@ -1,6 +1,6 @@
 import './../styles/index.css';
 import initialCards from './cards.js';
-import { createCard, likeCard, deleteCard, appendCardToContainer } from './../components/card.js';
+import { createCard, likeCard, deleteCard } from './../components/card.js';
 import { openPopup, closePopup, closePopupByEscape } from './../components/modal.js';
 
 const placesList = document.querySelector('.places__list');
@@ -11,19 +11,31 @@ initialCards.forEach((cardData) => {
     placesList.append(cardElement);
 });
 
-//элементы модальных окн
-const editButton = document.querySelector('.profile__edit-button');
-const addCardButton = document.querySelector('.profile__add-button');
+//элементы попапа с картинкой
 const imagePopup = document.querySelector('.popup_type_image');
+const popupImage = imagePopup.querySelector('.popup__image');
+const popupCaption = imagePopup.querySelector('.popup__caption');
+
+//элементы попапа редактирования
+const editButton = document.querySelector('.profile__edit-button');
 const editProfilePopup = document.querySelector('.popup_type_edit');
+const nameInput = editProfilePopup.querySelector('.popup__input_type_name');
+const jobInput = editProfilePopup.querySelector('.popup__input_type_description');
+const profileName = document.querySelector('.profile__title');
+const profileDescription = document.querySelector('.profile__description');
+const formElement = document.querySelector('form[name="edit-profile"]');
+
+//элементы попапа добавления карточки
+const addCardButton = document.querySelector('.profile__add-button');
 const addCardPopup = document.querySelector('.popup_type_new-card');
+const newCardForm = document.querySelector('form[name="new-place"]');
+const placeNameInput = newCardForm.querySelector('.popup__input_type_card-name');
+const linkInput = newCardForm.querySelector('.popup__input_type_url');
+
 const popups = document.querySelectorAll('.popup');
 
 //функция открытия попапа с картинкой
 function openImagePopup(cardData) {
-    const popupImage = document.querySelector('.popup__image');
-    const popupCaption = document.querySelector('.popup__caption');
-
     popupImage.src = cardData.link;
     popupImage.alt = cardData.name;
     popupCaption.textContent = cardData.name;
@@ -44,11 +56,6 @@ popups.forEach((popup) => {
 
 //обработчики открытия попапов
 editButton.addEventListener('click', () => {
-  const nameInput = editProfilePopup.querySelector('.popup__input_type_name');
-  const jobInput = editProfilePopup.querySelector('.popup__input_type_description');
-  const profileName = document.querySelector('.profile__title');
-  const profileDescription = document.querySelector('.profile__description');
-
   nameInput.value = profileName.textContent;
   jobInput.value = profileDescription.textContent;
 
@@ -59,18 +66,14 @@ addCardButton.addEventListener('click', () => {
   openPopup(addCardPopup);
 });
 
+formElement.addEventListener('submit', handleEditProfileSubmit);
+
 //обработчик отправки формы
-const formElement = document.querySelector('form[name="edit-profile"]');
-function handleFormSubmit(evt) {
+function handleEditProfileSubmit(evt) {
     evt.preventDefault();
-    const nameInput = formElement.querySelector('.popup__input_type_name');
-    const jobInput = formElement.querySelector('.popup__input_type_description');
 
     const newName = nameInput.value;
     const newDescription = jobInput.value;
-
-    const profileName = document.querySelector('.profile__title');
-    const profileDescription = document.querySelector('.profile__description');
 
     profileName.textContent = newName;
     profileDescription.textContent = newDescription;
@@ -78,14 +81,9 @@ function handleFormSubmit(evt) {
     closePopup(editProfilePopup);
 };
 
-formElement.addEventListener('submit', handleFormSubmit);
-
 //добавление карточки
-const newCardForm = document.querySelector('form[name="new-place"]');
 function handleNewCardSubmit(evt) {
     evt.preventDefault();
-    const placeNameInput = newCardForm.querySelector('.popup__input_type_card-name');
-    const linkInput = newCardForm.querySelector('.popup__input_type_url');
 
     const name = placeNameInput.value;
     const link = linkInput.value;
