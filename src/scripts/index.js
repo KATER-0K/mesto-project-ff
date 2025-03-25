@@ -1,7 +1,7 @@
 import './../styles/index.css';
 import initialCards from './cards.js';
 import { createCard, likeCard, deleteCard } from './../components/card.js';
-import { openPopup, closePopup, closePopupByEscape } from './../components/modal.js';
+import { openPopup, closePopup, initializePopups } from './../components/modal.js';
 
 const placesList = document.querySelector('.places__list');
 
@@ -103,3 +103,7 @@ function handleNewCardSubmit(evt) {
 };
 
 newCardForm.addEventListener('submit', handleNewCardSubmit);
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializePopups();
+});

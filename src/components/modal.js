@@ -11,7 +11,7 @@ export function closePopup(popup) {
 };
 
 //функция закрытия попапа нажатием на Esc
-export function closeByEscape(evt) {
+function closeByEscape(evt) {
     if (evt.key === 'Escape') {
     const openedPopup = document.querySelector('.popup_is-opened');
     if (openPopup) {
@@ -19,3 +19,11 @@ export function closeByEscape(evt) {
     };
   };
 };
+
+//функция добавления анимации к попапам
+export function initializePopups() {
+    const popups = document.querySelectorAll('.popup');
+    popups.forEach(popup => {
+        popup.classList.add('popup_is-animated');
+    });
+}
