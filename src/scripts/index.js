@@ -1,6 +1,6 @@
 import './../styles/index.css';
 import initialCards from './cards.js';
-import { createCard } from './../components/card.js';
+import { createCard, isCardLiked, updateLikeStatus, removeCardFromDOM } from './../components/card.js';
 import { openPopup, closePopup } from './../components/modal.js';
 import { clearValidation, enableValidation} from './../components/validation.js';
 import { updateAvatar, isImageUrl, fetchCards, fetchUserData, addCard, updateProfileData, toggleLike, deleteCard} from './../components/api.js';
@@ -45,6 +45,14 @@ let userId = null;
 let currentCardId = null;
 let currentCardElement = null;
 
+// добавлена функция для добавления класса popup_is-animated ко всем попапам
+document.addEventListener('DOMContentLoaded', () => {
+  const popups = document.querySelectorAll('.popup');
+  popups.forEach(popup => {
+    popup.classList.add('popup_is-animated');
+  });
+});
+
 // функция открытия попапа с картинкой
 function openImagePopup(cardData) {
   popupImage.src = cardData.link;
@@ -83,6 +91,7 @@ function handleEditProfileSubmit(evt) {
   .then(data => {
     updateUserProfile(data);
     closePopup(editProfilePopup);
+    formElement.reset(); // добавлена очистка формы после закрытия
   })
   .catch(error => console.error('Ошибка при обновлении профиля:', error))
   .finally(() => resetButton());
@@ -102,8 +111,7 @@ function handleNewCardSubmit(evt) {
     const newCard = createCard(card, openDeleteConfirmationPopup, handleToggleLike, openImagePopup, userId);
     placesList.prepend(newCard);
     closePopup(addCardPopup);
-    newCardForm.reset();
-
+    newCardForm.reset();// добавлена очистка формы после закрытия
     clearValidation(newCardForm, validationSettings);
   })
   .catch(error => console.error('Ошибка при добавлении карточки:', error))
@@ -125,7 +133,7 @@ function changeAvatarFormSubmit(evt) {
   .then(data => {
     profileImage.style.backgroundImage = `url(${data.avatar})`;
     closePopup(popupChangeAvatar);
-    avatarForm.reset();
+    avatarForm.reset();// добавлена очистка формы после закрытия
   })
   .catch(error => console.error('Ошибка при обновлении аватара:', error))
   .finally(() => resetButton());
@@ -135,7 +143,7 @@ function changeAvatarFormSubmit(evt) {
 function handleDeleteCard(cardId, cardElement) {
 deleteCard(cardId)
   .then(() => {
-    cardElement.remove();
+    removeCardFromDOM(cardElement);
     closePopup(popupDeleteConfirm);
   })
   .catch(error => console.error('Ошибка при удалении карточки:', error));
@@ -143,11 +151,10 @@ deleteCard(cardId)
 
 // обработчик лайка
 function handleToggleLike(cardId, likeButton, likesNumberElement) {
-  const isLiked = likeButton.classList.contains('card__like-button_is-active');
+  const isLiked = isCardLiked(likeButton);
   toggleLike(cardId, isLiked)
   .then(updatedCard => {
-    likesNumberElement.textContent = updatedCard.likes.length;
-    likeButton.classList.toggle('card__like-button_is-active');
+    updateLikeStatus(likeButton, likesNumberElement, updatedCard.likes);
   })
   .catch(error => {
     console.error('Ошибка при обновлении лайка:', error);

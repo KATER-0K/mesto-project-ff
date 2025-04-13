@@ -32,4 +32,21 @@ export function createCard (card, openDeleteConfirmationPopup, handleToggleLike,
     cardImage.addEventListener('click', () => handleImageClick(card));
 
     return cardElement;
-}
+};
+
+// добавлена функция для определения, лайкнута ли карточка
+export function isCardLiked(likeButton) {
+  return likeButton.classList.contains('card__like-button_is-active');
+};
+
+// добавлена функция для обновления состояния лайка
+export function updateLikeStatus(likeButton, likesNumberElement, likes) {
+  const isLiked = likes.some(like => like._id);
+  likeButton.classList.toggle('card__like-button_is-active', isLiked);
+  likesNumberElement.textContent = likes.length;
+};
+
+// добавлена функция для удаления карточки из DOM
+export function removeCardFromDOM(cardElement) {
+  cardElement.remove();
+};
